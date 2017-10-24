@@ -1,4 +1,4 @@
-## Kubernetes Setup for CSW-PROD
+## Openshift Setup for CSW-PROD
 
 ### Pre-requisite
 

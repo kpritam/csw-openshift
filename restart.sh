@@ -1,5 +1,5 @@
 #!/bin/bash
 
 down.sh
-minikube stop
-minikube start
+minishift stop
+minishift start --vm-driver=virtualbox

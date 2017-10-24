@@ -1,4 +1,4 @@
 #!/bin/bash
 
-kubectl delete -f seed/
-kubectl delete -f config/
+oc delete -f seed/
+oc delete -f config/

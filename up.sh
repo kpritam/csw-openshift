@@ -1,4 +1,6 @@
 #!/bin/bash
 
-kubectl apply -f seed/
-kubectl apply -f config/
+oc apply -f seed/
+oc apply -f config/config_pv.yml
+oc apply -f config/config_pvc.yml
+oc apply -f config/config.yml
