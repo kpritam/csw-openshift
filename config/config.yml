@@ -26,23 +26,22 @@ spec:
     metadata:
       labels:
         app: config
-    spec:
-      initContainers:
-      - name: mount-repo
-        image: phkadam2008/csw-config-server:1.0
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c", "chown -R 1000060000:1000060000 /tmp/csw-config-svn"]
-        volumeMounts:
-          - name: svn-storage
-            mountPath: "/tmp/csw-config-svn-1"    
+    spec:   
       containers:
       - name: config
         image: phkadam2008/csw-config-server:1.0
         imagePullPolicy: IfNotPresent
+        env:
+          - name: clusterPort
+            value: "3553"
         command: ["/bin/sh"]
-        args: ["-c", "chown -R +x /tmp/csw-config-svn && bin/csw-config-server -DclusterSeeds=$(getent hosts seed-0.seed | awk '{ print $1 }'):3552 --initRepo"]
+        args: ["-c", "bin/csw-config-server -DclusterSeeds=$(getent hosts seed-0.seed | awk '{ print $1 }'):3552 --initRepo"]
         ports:
           - containerPort: 4000
+          - containerPort: 3553
+        volumeMounts:
+          - name: svn-storage
+            mountPath: "/tmp/csw-config-svn"  
       volumes:
       - name: svn-storage
         persistentVolumeClaim:
