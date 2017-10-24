@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: seed
+spec:
+  selector:
+    app: seed
+  ports:
+    - name: admin
+      protocol: TCP
+      port: 7878
+      targetPort: 7878
+    - name: management
+      protocol: TCP
+      port: 7879
+      targetPort: 7879
+    - name: cluster
+      protocol: TCP
+      port: 3552
+      targetPort: 3552
+  clusterIP: None
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    app: seed
+  name: seed
+spec:
+  serviceName: seed
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seed
+  template:
+    metadata:
+      labels:
+        app: seed
+    spec:
+      containers:
+      - name: seed
+        image: phkadam2008/csw-cluster-seed
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: CLUSTER_PORT
+            value: "3552"
+          - name: CLUSTER_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        command: ["bin/csw-cluster-seed"]
+        args:
+          - "-DclusterSeeds=$(CLUSTER_IP):$(CLUSTER_PORT)"
+          - "--clusterPort=$(CLUSTER_PORT)"
+          - "-DmanagementPort=7879"
+        livenessProbe:
+          tcpSocket:
+            port: 3552
+        ports:
+          - containerPort: 7878
+          - containerPort: 7879
+          - containerPort: 3552

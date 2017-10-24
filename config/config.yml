@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: config
+spec:
+  type: NodePort
+  selector:
+    app: config
+  ports:
+    - port: 4000
+      protocol: TCP
+      targetPort: 4000
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: config
+  name: config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config
+  template:
+    metadata:
+      labels:
+        app: config
+    spec:
+      initContainers:
+      - name: mount-repo
+        image: phkadam2008/csw-config-server:1.0
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "chown -R 1000060000:1000060000 /tmp/csw-config-svn"]
+        volumeMounts:
+          - name: svn-storage
+            mountPath: "/tmp/csw-config-svn-1"    
+      containers:
+      - name: config
+        image: phkadam2008/csw-config-server:1.0
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "chown -R +x /tmp/csw-config-svn && bin/csw-config-server -DclusterSeeds=$(getent hosts seed-0.seed | awk '{ print $1 }'):3552 --initRepo"]
+        ports:
+          - containerPort: 4000
+      volumes:
+      - name: svn-storage
+        persistentVolumeClaim:
+          claimName: svn-claim
