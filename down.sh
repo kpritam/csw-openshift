@@ -1,4 +1,4 @@
 #!/bin/bash
 
-oc delete -f seed/
-oc delete -f config/
+oc delete -f seed/seed.yml
+oc delete -f config/config.yml
